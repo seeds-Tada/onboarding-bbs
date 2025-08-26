@@ -4,12 +4,19 @@
  * -------------------------------------------------- */
 require_once 'private/bootstrap.php';
 require_once 'private/database.php';
+require_once 'validation/delete_confirm_validation.php';
+
+/* --------------------------------------------------
+ * セッション開始
+ * -------------------------------------------------- */
+session_start();
 
 /* --------------------------------------------------
  * 送られてきた値を取得する
  * セッションにも保存しておく
  * -------------------------------------------------- */
-$id = '';
+$id = $_POST['id'] ?? "";
+$_SESSION['id'] = $id;
 
 /* --------------------------------------------------
  * 値のバリデーションを行う
@@ -17,18 +24,48 @@ $id = '';
  * 1.値が入力されているか
  * 2.データベースに対象IDのレコードが存在するか
  * -------------------------------------------------- */
+// 1.値が入力されているか
+$error_mes = validation();
+if(count($error_mes) !== 0) {
+	unset($_SESSION['id']);
+	redirect('/index.php');
+}
+
+// 2.データベースに対象IDのレコードが存在するか
+$connection = connectDB();
+$result_article = [];
+try {
+	$sql = "SELECT * FROM articles WHERE id = :id";
+	$stmt = $connection->prepare($sql);
+	$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+	$stmt->execute();
+	$result_article = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	$stmt = null;
+}catch(PDOException $e) {
+	echo("db error. sources table.<br>");
+	echo($e->getMessage());
+}catch(Exception $e) {
+	echo("error<br>");
+	echo($e->getMessage());
+}
+
+if(empty($result_article)) {
+	unset($_SESSION['id']);
+	redirect('/index.php');
+}
 
 /* --------------------------------------------------
  * 削除する投稿のデータ
  * -------------------------------------------------- */
-$name = '';
-$content = '';
+$name = $result_article[0]['name'];
+$content = $result_article[0]['content'];
 
 /* --------------------------------------------------
  * 確認画面と削除画面で利用するトークンを発行する
  * 今回は時刻をトークンとする
  * -------------------------------------------------- */
 $token = strval(time());
+$_SESSION['token'] = $token;
 
 ?>
 
@@ -49,8 +86,8 @@ $token = strval(time());
         <div>下記の内容を削除しますがよろしいですか?</div>
         <table>
             <tbody>
-            <tr><th>名前</th><td><?= $name ?></td></tr>
-            <tr><th>投稿内容</th><td><?= $content ?></td></tr>
+            <tr><th>名前</th><td><?= htmlspecialchars($name); ?></td></tr>
+            <tr><th>投稿内容</th><td><pre><?= htmlspecialchars($content); ?><pre></td></tr>
             </tbody>
         </table>
         <form action="delete_complete.php" method="post">

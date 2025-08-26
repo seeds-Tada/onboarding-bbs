@@ -4,40 +4,58 @@
  * -------------------------------------------------- */
 require_once 'private/bootstrap.php';
 require_once 'private/database.php';
+require_once 'validation/edit_complete_validation.php';
+
+/* --------------------------------------------------
+ * セッション開始
+ * -------------------------------------------------- */
+session_start();
 
 /* --------------------------------------------------
  * 送られてきた値を取得する
  * -------------------------------------------------- */
-$token = '';
-$name = '';
-$content = '';
+$token = $_POST['token'] ?? "";
+$name = $_POST['name'] ?? "";
+$content = $_POST['content'] ?? "";
 
 /* --------------------------------------------------
  * 送られてきたトークンのバリデーション
  *
  * セッションに保存されているトークンと比較し、
  * 一致していなかった場合はトップ画面にリダイレクトする
+ * 
+ * 値のバリデーションも行う
  * -------------------------------------------------- */
-if(true) {
+$error_mes = validation();
+if(count($error_mes) !== 0) {
     unset($_SESSION['token']);
     redirect('/index.php');
 }
 
 /* --------------------------------------------------
- * 値のバリデーションを行う
- * -------------------------------------------------- */
-if(true) {
-    redirect('/editing.php');
-}
-
-/* --------------------------------------------------
  * セッション内に保存したIDを取得する
  * -------------------------------------------------- */
-$id = '';
+$id = $_SESSION['id'];
 
 /* --------------------------------------------------
  * データの更新処理
  * -------------------------------------------------- */
+try {
+	$connection = connectDB();
+	$sql = "UPDATE articles SET name = :name, content = :content WHERE id = :id";
+	$stmt = $connection->prepare($sql);
+	$stmt->bindParam(':name', $name, PDO::PARAM_STR);
+	$stmt->bindParam(':content', $content, PDO::PARAM_STR);
+	$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+	$stmt->execute();
+	$stmt = null;
+}catch(PDOException $e) {
+	echo("db error. sources table.<br>");
+	echo($e->getMessage());
+}catch(Exception $e) {
+	echo("error<br>");
+	echo($e->getMessage());
+}
 
 /* --------------------------------------------------
  * セッション内のデータを削除する

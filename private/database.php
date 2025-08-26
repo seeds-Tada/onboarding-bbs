@@ -19,6 +19,14 @@ define('DB_PASSWORD', 'password');
  * ---------------------------------------------------------------------- */
 function connectDB()
 {
-    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // 問題があった場合に例外を出す
-    return null;
+	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // 問題があった場合に例外を出す
+
+	$dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME;
+	try {
+		$connection = new PDO($dsn, DB_USER, DB_PASSWORD);
+		return $connection;
+	}catch(PDOException $e)
+	{
+		die("Connection failed: " . $e->getMessage());
+	}
 }
