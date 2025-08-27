@@ -1,6 +1,7 @@
 <?php
 function validation() {
 	$error_msg = [];
+	
 	//トークン　時刻
 	if(empty($_POST['token']) || empty($_SESSION['token'])) {
 		array_push($error_msg, "トークンがありません。");

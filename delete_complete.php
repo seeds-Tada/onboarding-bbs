@@ -4,7 +4,11 @@
  * -------------------------------------------------- */
 require_once 'private/bootstrap.php';
 require_once 'private/database.php';
-require_once 'validation/edit_complete_validation.php';
+require_once 'validation/delete_complete_validation.php';
+
+require_once 'vendor/autoload.php';
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
 
 /* --------------------------------------------------
  * セッション開始
@@ -47,27 +51,12 @@ try {
 	echo("error<br>");
 	echo($e->getMessage());
 }
-?>
 
-<!-- 描画するHTML -->
-<!doctype html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>削除成功</title>
-</head>
-<body>
-    <header>
-        <h1>削除成功</h1>
-    </header>
-    <main>
-        <a href="index.php">戻る</a>
-    </main>
-    <footer>
-        <hr>
-        <div>(　・ω・)ノ</div>
-    </footer>
-</body>
-</html>
+/* --------------------------------------------------
+ * Twigを利用する
+ * -------------------------------------------------- */
+$loader = new FilesystemLoader('./templates');
+$twig = new Environment($loader);
+$template = $twig->load('delete_complete.html.twig');
+
+echo($template->render([]));
