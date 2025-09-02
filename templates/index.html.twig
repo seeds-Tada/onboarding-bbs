@@ -5,31 +5,23 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>オンボーディング掲示板</title>
-	<style>
-		textarea {
-			resize: vertical;
-		}
-		textarea, input[type=text] {
-			border: solid 1px gray;
-			box-sizing: border-box;
-			padding: 4px;
-			width: 100%;
-		}
-	</style>
+	<link rel="stylesheet" href="./twig.css">
 </head>
 <body>
 	<header>
 		<h1>オンボーディング掲示板</h1>
 	</header>
 	<main>
-		<ul>
+		<div class="bbs-messages">
 			{% for article in data %}
-				<li>
-					<div>
-						{{article.id}}:&nbsp;{{ article.name }}&nbsp;{{ article.updated_at }}
+				<div class="bbs-message">
+					<div class="bbs-message-header">
+						{{article.id}}:&nbsp;<span class="bbs-message-name">{{ article.name }}</span>&nbsp;{{ article.updated_at }}
 					</div>
-					<div><pre>{{ article.content }}</pre></div>
-					<div style="display: inline-flex;">
+					<div class="bbs-message-content">
+						<pre>{{ article.content }}</pre>
+					</div>
+					<div class="bbs-message-button">
 						<form action="editing.php" method="post">
 							<input type="hidden" name="id" value="{{ article.id }}">
 							<button type="submit">編集</button>
@@ -40,13 +32,12 @@
 							<button type="submit">削除</button>
 						</form>
 					</div>
-				</li>
+				</div>
 				<br />
 			{% endfor %}
-		</ul>
-		<div>
+		</div>
 			<form action="post_confirm.php" method="post">
-				<table>
+				<table class="post-table">
 					<thead>
 						<tr>
 							<th colspan="2">新規投稿</th>
@@ -65,7 +56,7 @@
 				</table>
 				<button type="submit">投稿</button>
 			</form>
-		</div>
+		
 	</main>
 	<footer>
 		<hr>

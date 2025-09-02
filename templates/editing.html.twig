@@ -5,17 +5,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>投稿編集</title>
-	<style>
-		textarea {
-			resize: vertical;
-		}
-		textarea, input[type=text] {
-			border: solid 1px gray;
-			box-sizing: border-box;
-			padding: 4px;
-			width: 100%;
-		}
-	</style>
+	<link rel="stylesheet" href="./twig.css">
 </head>
 <body>
 	<header>
@@ -24,7 +14,7 @@
 	<main>
 		<form action="edit_complete.php" method="post">
 			<input type="hidden" name="token" value="{{ data.token }}">
-			<table>
+			<table class="post-table">
 				<tbody>
 				<tr>
 					<th><label for="name">名前</label></th>
