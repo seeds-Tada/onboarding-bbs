@@ -43,13 +43,12 @@ try {
 	$stmt = $connection->prepare($sql);
 	$stmt->bindParam(':id', $id, PDO::PARAM_INT);
 	$stmt->execute();
-	$result_article = $stmt->fetchAll(PDO::FETCH_ASSOC);
-	$stmt = null;
+	$result_article = $stmt->fetch(PDO::FETCH_ASSOC);
 }catch(PDOException $e) {
-	echo("db error. sources table.<br>");
+	echo("データベースエラーが発生しました。<br>");
 	echo($e->getMessage());
 }catch(Exception $e) {
-	echo("error<br>");
+	echo("エラーが発生しました<br>");
 	echo($e->getMessage());
 }
 
@@ -61,8 +60,8 @@ if(empty($result_article)) {
 /* --------------------------------------------------
  * 編集する投稿のデータ
  * -------------------------------------------------- */
-$name = $result_article[0]['name'];
-$content = $result_article[0]['content'];
+$name = $result_article['name'];
+$content = $result_article['content'];
 
 /* --------------------------------------------------
  * 編集画面と編集完了画面で利用するトークンを発行する

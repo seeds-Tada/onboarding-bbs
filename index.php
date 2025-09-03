@@ -27,12 +27,12 @@ try {
 	$sql = "SELECT * FROM articles;";
 	$stmt = $connection->query($sql);
 	$twig_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-	$stmt = null;
 }catch(PDOException $e) {
-	echo("error");
+	echo("データベースエラーが発生しました。<br>");
+	echo($e->getMessage());
 }catch(Exception $e) {
-	echo("error");
-	echo($e);
+	echo("エラーが発生しました<br>");
+	echo($e->getMessage());
 }
 
 /* --------------------------------------------------

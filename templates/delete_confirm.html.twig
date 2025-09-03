@@ -15,8 +15,8 @@
 		<div>下記の内容を削除しますがよろしいですか?</div>
 		<table class="post-table">
 			<tbody>
-			<tr><th>名前</th><td>{{ data.name }}</td></tr>
-			<tr><th>投稿内容</th><td><pre>{{ data.content }}<pre></td></tr>
+			<tr><th>名前</th><td><span>{{ data.name }}</span></td></tr>
+			<tr><th>投稿内容</th><td><span><pre>{{ data.content }}<pre></span></td></tr>
 			</tbody>
 		</table>
 		<form action="delete_complete.php" method="post">

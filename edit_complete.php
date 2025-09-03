@@ -52,12 +52,11 @@ try {
 	$stmt->bindParam(':content', $content, PDO::PARAM_STR);
 	$stmt->bindParam(':id', $id, PDO::PARAM_INT);
 	$stmt->execute();
-	$stmt = null;
 }catch(PDOException $e) {
-	echo("db error. sources table.<br>");
+	echo("データベースエラーが発生しました。<br>");
 	echo($e->getMessage());
 }catch(Exception $e) {
-	echo("error<br>");
+	echo("エラーが発生しました<br>");
 	echo($e->getMessage());
 }
 
