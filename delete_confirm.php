@@ -4,12 +4,23 @@
  * -------------------------------------------------- */
 require_once 'private/bootstrap.php';
 require_once 'private/database.php';
+require_once 'validation/delete_confirm_validation.php';
+
+require_once 'vendor/autoload.php';
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
+
+/* --------------------------------------------------
+ * セッション開始
+ * -------------------------------------------------- */
+session_start();
 
 /* --------------------------------------------------
  * 送られてきた値を取得する
  * セッションにも保存しておく
  * -------------------------------------------------- */
-$id = '';
+$id = $_POST['id'] ?? "";
+$_SESSION['id'] = $id;
 
 /* --------------------------------------------------
  * 値のバリデーションを行う
@@ -17,50 +28,58 @@ $id = '';
  * 1.値が入力されているか
  * 2.データベースに対象IDのレコードが存在するか
  * -------------------------------------------------- */
+// 1.値が入力されているか
+$error_mes = validation();
+if(count($error_mes) !== 0) {
+	unset($_SESSION['id']);
+	redirect('/index.php');
+}
+
+// 2.データベースに対象IDのレコードが存在するか
+$connection = connectDB();
+$result_article = [];
+try {
+	$sql = "SELECT * FROM articles WHERE id = :id";
+	$stmt = $connection->prepare($sql);
+	$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+	$stmt->execute();
+	$result_article = $stmt->fetch(PDO::FETCH_ASSOC);
+}catch(PDOException $e) {
+	echo("データベースエラーが発生しました。<br>");
+	echo($e->getMessage());
+}catch(Exception $e) {
+	echo("エラーが発生しました<br>");
+	echo($e->getMessage());
+}
+
+if(empty($result_article)) {
+	unset($_SESSION['id']);
+	redirect('/index.php');
+}
 
 /* --------------------------------------------------
  * 削除する投稿のデータ
  * -------------------------------------------------- */
-$name = '';
-$content = '';
+$name = $result_article['name'];
+$content = $result_article['content'];
 
 /* --------------------------------------------------
  * 確認画面と削除画面で利用するトークンを発行する
  * 今回は時刻をトークンとする
  * -------------------------------------------------- */
 $token = strval(time());
+$_SESSION['token'] = $token;
 
-?>
+/* --------------------------------------------------
+ * Twigを利用する
+ * -------------------------------------------------- */
+$twig_data = array(
+	'name' => $name,
+	'content' => $content,
+	'token' => $token,
+);
+$loader = new FilesystemLoader('./templates');
+$twig = new Environment($loader);
+$template = $twig->load('delete_confirm.html.twig');
 
-<!-- 描画するHTML -->
-<!doctype html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>削除確認</title>
-</head>
-<body>
-    <header>
-        <h1>確認</h1>
-    </header>
-    <main>
-        <div>下記の内容を削除しますがよろしいですか?</div>
-        <table>
-            <tbody>
-            <tr><th>名前</th><td><?= $name ?></td></tr>
-            <tr><th>投稿内容</th><td><?= $content ?></td></tr>
-            </tbody>
-        </table>
-        <form action="delete_complete.php" method="post">
-            <input type="hidden" name="token" value="<?= $token ?>">
-            <button type="submit">削除</button>
-        </form>
-    </main>
-    <footer>
-        <hr>
-        <div>(　・ω・)ノ⌒■</div>
-    </footer>
-</body>
-</html>
+echo($template->render(["data" => $twig_data]));
